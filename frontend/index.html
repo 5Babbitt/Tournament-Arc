@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="./js/app.js" defer></script>
+</head>
+<body>
+    <div id="content">
+        <div id="header" class="textCenter">
+            <h1>Tournament Arc</h1>
+            <p>Subtitle I still need to think about</p>
+            <hr class="divider">
+        </div>
+
+        <div id="createView" class="view">
+            <h2>Create a New Poll</h2>
+            <label>Poll Title:</label>
+            <input type="text" id="pollTitle" placeholder="e.g. Where Eat?" required>
+            
+            <label class="section-label">Candidates:</label>
+            <div id="candidateInputs">
+                <div class="candidateRow">
+                    <input type="text" class="candidateVal" placeholder="Candidate 1">
+                </div>
+                <div class="candidateRow">
+                    <input type="text" class="candidateVal" placeholder="Candidate 2">
+                </div>
+            </div>
+            <button id="addCandidateBtn" class="secondary">Add Candidate</button>
+            <button id="createBtn">Create Poll</button>
+        </div>
+
+        <div id="voteView" class="view hidden">
+            <h2 id="votePollTitle">Loading...</h2>
+
+            <label>Your Name:</label>
+            <input type="text" id="voterName" placeholder="Enter Name" required>
+
+            <h4>Rank your choices:</h4>
+            <p class="subtitle">(Drag and drop: Rank first to last from top to bottom)</p>
+
+            <ul id="sortableList">
+                <!-- Javascript will inject list items here -->
+            </ul>
+
+            <button id="submitVoteBtn">Submit Vote</button>
+            <button class="adminBtn" id="closePollBtn">Admin: Close Poll & Calculate</button>
+        </div>
+
+        <div id="resultsView" class="view hidden">
+            <div class="textCenter">
+                <h2>Final Results</h2>
+                <p>WINNER:</p>
+                <h1 id="winnerName">Bing Bong</h1>
+                <p><strong>Winning Method:</strong> <span id="winningMethod">Condorcet Winner</span></p>
+            </div>
+
+            <h3>Full Rankings</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Candidate</th>
+                        <th>Borda Count</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                    <!-- Javascript will inject table rows here -->
+                </tbody>
+            </table>
+
+            <p class="danger textCenter">⚠️ Notice: All data will be permanently deleted in 24 hours.</p>
+        </div>
+        <b class="textCenter">Tool by <a href="https://github.com/5Babbitt" target="_blank">5Babbitt</a></b>
+    </div>
+</body>
+</html>

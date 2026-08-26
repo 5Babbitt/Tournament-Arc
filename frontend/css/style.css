@@ -1,0 +1,280 @@
+/* --- CSS Variables --- */
+:root {
+    /* Typography */
+    --font-base: system-ui, -apple-system, sans-serif;
+    
+    /* Colors - Backgrounds & Surfaces (Dark Forest/Moss Greens) */
+    --bg-body: #0a1a0f;       /* Deepest dark green for the body */
+    --bg-surface: #122a18;    /* Lighter dark green for the main content card */
+    --bg-sortable: #1d3d25;   /* Distinct layer for sortable items */
+    
+    /* Colors - Text (Off-Whites and Desaturated Greens) */
+    --text-main: #fdfcfb;     /* High contrast cream for main text */
+    --text-muted: #a9b3ab;    /* Desaturated sage for subtitles/labels */
+    --text-light: #828d84;    /* Faded green-gray for subtle icons/numbers */
+    
+    /* Colors - Brand & Actions (Gold Accents) */
+    --primary: #d4af37;       /* Metallic gold for primary actions */
+    --primary-hover: #f6cf57; /* Brighter gold on hover */
+    
+    --secondary: #2e4a36;     /* Neutral dark green/olive for secondary actions */
+    --secondary-hover: #3d5e45; /* Slightly lighter on hover */
+    --secondary-text: #fdfcfb; /* Off-white text on secondary buttons */
+    
+    --admin: #0a0c0b;         /* Near-black for admin separation */
+    --admin-hover: #1c1f1e;   /* Dark charcoal on hover */
+    
+    --danger: #dc2626;        /* Bright Red pops well against dark green/gold */
+    --danger-btn: #ef4444;    /* Slightly different red for dynamic buttons */
+    
+    --success: #69f0ae;       /* Vibrant mint/emerald optimized for dark backgrounds (Winner Name) */
+    
+    /* Colors - Borders */
+    --border-light: #253f2c;  /* Very subtle border for depth */
+    --border-dark: #3d5e45;   /* Defined border for inputs/rows */
+
+    /* Sizing & Spacing (Preserved) */
+    --max-width: 600px;
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+    --spacing-xl: 30px;
+    
+    /* Borders (Preserved) */
+    --radius-sm: 6px;
+    --radius-lg: 12px;
+}
+
+/* --- Base & Layout --- */
+body {
+    font-family: var(--font-base);
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    margin: 0;
+    padding: var(--spacing-lg);
+}
+
+#content {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    background: var(--bg-surface);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    /* In dark mode, a subtle border often replaces a box shadow for clarity */
+    border: 1px solid var(--border-light);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2, h3, h4 {
+    margin-top: 0;
+    color: var(--text-main); /* Ensure titles stay bright */
+}
+
+/* Specific accent: Make the very top title Gold */
+#header h1 { color: var(--primary); }
+
+/* --- View & Utility Classes --- */
+.hidden { display: none !important; }
+.textCenter { text-align: center; }
+
+.danger {
+    color: var(--danger);
+    font-size: 0.9em;
+    margin-top: var(--spacing-xl);
+}
+
+.subtitle {
+    font-size: 0.9em;
+    color: var(--text-muted);
+    margin-top: calc(var(--spacing-sm) * -1);
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid var(--border-light);
+    margin: var(--spacing-lg) 0;
+}
+
+.section-label {
+    display: block;
+    margin-top: var(--spacing-md);
+    font-weight: bold;
+    color: var(--text-main);
+}
+
+/* --- Form Elements --- */
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-main);
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    box-sizing: border-box;
+    background-color: var(--bg-body); /* Subtle contrast against card */
+    color: var(--text-main);
+}
+
+input[type="text"]::placeholder {
+    color: var(--text-light); /* Faded placeholder */
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary); /* Gold highlight on focus */
+}
+
+button {
+    background-color: var(--primary);
+    color: var(--bg-body); /* Use the darkest body color for text on gold buttons */
+    border: none;
+    padding: 12px var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    margin-top: var(--spacing-sm);
+    text-transform: uppercase; /* Optional stylization for primary buttons */
+    letter-spacing: 0.05em;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+button.secondary {
+    background-color: var(--secondary);
+    color: var(--secondary-text);
+    text-transform: none; /* Secondary buttons are less formal */
+    letter-spacing: normal;
+}
+
+button.secondary:hover {
+    background-color: var(--secondary-hover);
+}
+
+button.adminBtn {
+    background-color: var(--admin);
+    color: var(--text-main);
+    margin-top: var(--spacing-xl);
+    border: 1px solid var(--border-dark);
+}
+
+button.adminBtn:hover {
+    background-color: var(--admin-hover);
+}
+
+/* --- Candidate Inputs --- */
+#candidateInputs {
+    margin-bottom: var(--spacing-sm);
+}
+
+.candidateRow {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.candidateRow input {
+    margin-bottom: 0;
+}
+
+.candidateRow .removeBtn {
+    width: auto;
+    margin-top: 0;
+    background-color: var(--danger-btn);
+    color: var(--bg-surface); /* Dark text for contrast against bright red */
+    padding: 0 var(--spacing-md);
+}
+
+.candidateRow .removeBtn:hover {
+    background-color: var(--danger);
+}
+
+/* --- Sortable List --- */
+#sortableList {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-lg) 0;
+}
+
+#sortableList li {
+    padding: var(--spacing-md);
+    background: var(--bg-sortable);
+    margin-bottom: 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    color: var(--text-main);
+}
+
+#sortableList li::before {
+    content: "↕";
+    margin-right: var(--spacing-md);
+    color: var(--primary); /* Accent: Gold grab handles */
+}
+
+#sortableList li:active {
+    cursor: grabbing;
+}
+
+/* --- Results View --- */
+#winnerName {
+    color: var(--success); /* Vibrant Mint Green for the Winner */
+    font-size: 2.5em;
+    margin: var(--spacing-sm) 0;
+    text-shadow: 0 0 10px rgba(105, 240, 174, 0.2); /* Subtle glow for impact */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--spacing-lg);
+    background-color: var(--bg-body); /* Contrast table surface against card */
+    border-radius: var(--radius-sm);
+    overflow: hidden; /* Ensure rounded corners work */
+}
+
+th, td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+th {
+    color: var(--primary); /* Accent: Gold column headers */
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.05em;
+}
+
+td {
+    color: var(--text-main);
+}
+
+/* --- Footer Link --- */
+b.textCenter {
+    display: block;
+    margin-top: var(--spacing-xl);
+    font-weight: normal;
+    font-size: 0.9em;
+    color: var(--text-muted);
+}
+
+b.textCenter a {
+    color: var(--primary); /* Gold links */
+    text-decoration: none;
+}
+
+b.textCenter a:hover {
+    text-decoration: underline;
+}
