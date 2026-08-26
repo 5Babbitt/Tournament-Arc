@@ -157,7 +157,30 @@ async function loadPollData(pollId) {
 
 		if (pollData.status === 'open') {
 			document.getElementById('votePollTitle').innerText = pollData.title
+			
+			// Populate #sortableList with candidates
+            const sortableList = document.getElementById('sortableList');
+            sortableList.innerHTML = ''; // Clear previous items if any
 
+            pollData.candidates.forEach(candidate => {
+                const li = document.createElement('li');
+                li.innerText = candidate;
+                sortableList.appendChild(li);
+            });
+
+            // Initialize SortableJS for drag-and-drop ranking
+            initSortable();
+
+			// Toggle Admin button visibility: Only show if user's adminToken matches this poll
+            const closeBtn = document.getElementById('closePollBtn');
+            if (state.adminToken) {
+                closeBtn.classList.remove('hidden');
+            } else {
+                closeBtn.classList.add('hidden');
+            }
+			
+			// Show the voting view
+            showView('voteView');
 		} else if (pollData.status === 'closed') {
 			document.getElementById('winnerName').innerText = pollData.winner || 'Tied / No Winner'
 			document.getElementById('winningMethod').innerText = pollData.winning_method || 'Unknown'
@@ -170,7 +193,7 @@ async function loadPollData(pollId) {
 
 			sortedScores.forEach(([candidate, score], index) => {
 				const tableRow = document.createElement('tr')
-				true.innerHTML = `
+				tableRow.innerHTML = `
 					<td>${index + 1}</td>
 					<td>${escapeHTML(candidate)}</td>
 					<td>${score}</td>

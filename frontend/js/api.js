@@ -1,4 +1,4 @@
-const API_BASE = 'https://your-worker-name.your-subdomain.workers.dev/api'
+const API_BASE = 'http://localhost:8787/api';
 
 async function apiCall(endpoint, method = 'GET', payload = null) {
     const options = {
@@ -34,16 +34,14 @@ export const api = {
      * Payload: { title, candidates }
      */
     createPoll: async (title, candidates) => {
-        // TODO: Call apiCall() with POST and payload
-        // Return { poll_id, admin_token }
+        return await apiCall('/create', 'POST', { title, candidates });
     },
 
     /**
      * GET /api/poll/:poll_id
      */
     getPoll: async (pollId) => {
-        // TODO: Call apiCall() with GET
-        // Return poll state object
+        return await apiCall(`/poll/${pollId}`, 'GET');
     },
 
     /**
@@ -51,7 +49,7 @@ export const api = {
      * Payload: { poll_id, voter_name, ranking }
      */
     submitVote: async (pollId, voterName, ranking) => {
-        // TODO: Call apiCall() with POST and payload
+        return await apiCall('/vote', 'POST', { poll_id: pollId, voter_name: voterName, ranking });
     },
 
     /**
@@ -59,7 +57,6 @@ export const api = {
      * Payload: { poll_id, admin_token }
      */
     closePoll: async (pollId, adminToken) => {
-        // TODO: Call apiCall() with POST and payload
-        // Return final calculated results
+        return await apiCall('/close', 'POST', { poll_id: pollId, admin_token: adminToken });
     }
 };
