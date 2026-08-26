@@ -1,7 +1,22 @@
+@font-face {
+    font-family: 'Optimus Princeps';
+    src: url('../assets/fonts/OptimusPrinceps.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Optimus Princeps';
+    src: url('../assets/fonts/OptimusPrincepsSemiBold.ttf') format('truetype');
+    font-weight: 600; /* Maps to bold/semibold */
+    font-style: normal;
+}
+
 /* --- CSS Variables --- */
 :root {
     /* Typography */
-    --font-base: system-ui, -apple-system, sans-serif;
+    --font-heading: 'Optimus Princeps', serif; 
+    --font-ui: system-ui, -apple-system, sans-serif;
     
     /* Colors - Backgrounds & Surfaces (Dark Forest/Moss Greens) */
     --bg-body: #0a1a0f;       /* Deepest dark green for the body */
@@ -48,35 +63,44 @@
 
 /* --- Base & Layout --- */
 body {
-    font-family: var(--font-base);
+    font-family: var(--font-ui);
     background-color: var(--bg-body);
     color: var(--text-main);
     margin: 0;
     padding: var(--spacing-lg);
 }
 
+/* --- View & Utility Classes --- */
+.hidden { display: none !important; }
+.textCenter { text-align: center; }
+
 #content {
     max-width: var(--max-width);
     margin: 0 auto;
-    background: var(--bg-surface);
     padding: var(--spacing-xl);
+}
+
+.view {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+    background: var(--bg-surface);
     border-radius: var(--radius-lg);
-    /* In dark mode, a subtle border often replaces a box shadow for clarity */
     border: 1px solid var(--border-light);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2, h3, h4 {
+    font-family: var(--font-heading);
     margin-top: 0;
     color: var(--text-main); /* Ensure titles stay bright */
 }
 
 /* Specific accent: Make the very top title Gold */
-#header h1 { color: var(--primary); }
-
-/* --- View & Utility Classes --- */
-.hidden { display: none !important; }
-.textCenter { text-align: center; }
+#header h1 { 
+    color: var(--primary); 
+    font-size: 3em;
+}
 
 .danger {
     color: var(--danger);
@@ -132,6 +156,8 @@ input[type="text"]:focus {
 }
 
 button {
+    font-family: var(--font-heading);
+    font-size: 1.1em;
     background-color: var(--primary);
     color: var(--bg-body); /* Use the darkest body color for text on gold buttons */
     border: none;
