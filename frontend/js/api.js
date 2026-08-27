@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8787/api';
+const API_BASE = 'https://tournament-arc-api.owen-harbert2.workers.dev/api';
 
 async function apiCall(endpoint, method = 'GET', payload = null) {
     const options = {
