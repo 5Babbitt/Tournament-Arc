@@ -33,8 +33,8 @@ export const api = {
      * POST /api/create
      * Payload: { title, candidates }
      */
-    createPoll: async (title, candidates) => {
-        return await apiCall('/create', 'POST', { title, candidates });
+    createPoll: async (title, candidates, expiry) => {
+        return await apiCall('/create', 'POST', { title, candidates, expiry });
     },
 
     /**

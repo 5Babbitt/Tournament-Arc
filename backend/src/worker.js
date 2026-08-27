@@ -3,14 +3,34 @@ import { calculateBlacksMethod } from './algorithm.js';
 async function handleCreate(request, env, corsHeaders) {
     try {
         const body = await request.json();
-        const { title, candidates } = body;
+        const { title, candidates, expiry } = body;
 
-        if (!title || !candidates || !Array.isArray(candidates) || candidates.length < 2) {
-            return new Response(JSON.stringify({ error: "Invalid title or candidates (minimum 2 required)." }), {
+        // Validation with length restrictions
+        if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 100) {
+            return new Response(JSON.stringify({ error: "Invalid title (must be 1-100 characters)." }), {
                 status: 400,
                 headers: corsHeaders
             });
         }
+        
+        if (!candidates || !Array.isArray(candidates) || candidates.length < 2 || candidates.length > 20) {
+            return new Response(JSON.stringify({ error: "Must provide between 2 and 20 candidates." }), {
+                status: 400,
+                headers: corsHeaders
+            });
+        }
+
+        if (candidates.some(c => typeof c !== 'string' || c.trim().length === 0 || c.length > 100)) {
+            return new Response(JSON.stringify({ error: "Candidate names must be 1-100 characters." }), {
+                status: 400,
+                headers: corsHeaders
+            });
+        }
+
+        // Validate expiry and convert to seconds (default to 1 day if invalid)
+        const allowedExpiries = [1, 2, 3, 7];
+        const expiryDays = allowedExpiries.includes(expiry) ? expiry : 1;
+        const expirationTtlSeconds = expiryDays * 86400;
 
         const poll_id = Math.random().toString(36).substring(2, 9);
         const admin_token = crypto.randomUUID();
@@ -23,7 +43,8 @@ async function handleCreate(request, env, corsHeaders) {
             votes: []
         };
 
-        await env.POLLS.put(poll_id, JSON.stringify(pollState));
+        // Use dynamic TTL based on user selection
+        await env.POLLS.put(poll_id, JSON.stringify(pollState), { expirationTtl: expirationTtlSeconds });
 
         return new Response(JSON.stringify({ poll_id, admin_token }), {
             status: 200,
@@ -77,8 +98,30 @@ async function handleVote(request, env, corsHeaders) {
         const body = await request.json();
         const { poll_id, voter_name, ranking } = body;
 
-        if (!poll_id || !voter_name || !Array.isArray(ranking)) {
-            return new Response(JSON.stringify({ error: "Invalid vote payload." }), {
+        // Validation with length restrictions
+        if (!poll_id || typeof poll_id !== 'string' || poll_id.length > 50) {
+            return new Response(JSON.stringify({ error: "Invalid poll ID." }), {
+                status: 400,
+                headers: corsHeaders
+            });
+        }
+
+        if (!voter_name || typeof voter_name !== 'string' || voter_name.trim().length === 0 || voter_name.length > 50) {
+            return new Response(JSON.stringify({ error: "Invalid voter name (must be 1-50 characters)." }), {
+                status: 400,
+                headers: corsHeaders
+            });
+        }
+
+        if (!ranking || !Array.isArray(ranking) || ranking.length < 2 || ranking.length > 20) {
+            return new Response(JSON.stringify({ error: "Invalid ranking array." }), {
+                status: 400,
+                headers: corsHeaders
+            });
+        }
+
+        if (ranking.some(r => typeof r !== 'string' || r.length > 100)) {
+            return new Response(JSON.stringify({ error: "Ranked items must be under 100 characters." }), {
                 status: 400,
                 headers: corsHeaders
             });
@@ -105,8 +148,6 @@ async function handleVote(request, env, corsHeaders) {
             voter_name: voter_name.trim(), 
             ranking 
         });
-
-        await env.POLLS.put(poll_id, JSON.stringify(pollData));
 
         return new Response(JSON.stringify({ success: true }), {
             status: 200,
@@ -187,7 +228,7 @@ export default {
         if (request.method === "OPTIONS") {
             return new Response(null, {
                 headers: {
-                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Origin": env.FRONTEND_URL,
                     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
                     "Access-Control-Allow-Headers": "Content-Type",
                 }
@@ -195,9 +236,22 @@ export default {
         }
 
         const corsHeaders = {
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": env.FRONTEND_URL,
             "Content-Type": "application/json"
         };
+        
+        // Apply native rate limit bound to the client IP on POST requests
+        if (request.method === "POST") {
+            const clientIp = request.headers.get("CF-Connecting-IP") || "unknown";
+            const { success } = await env.MY_RATE_LIMITER.limit({ key: clientIp });
+            
+            if (!success) {
+                return new Response(JSON.stringify({ error: "Too many requests. Please slow down." }), {
+                    status: 429,
+                    headers: corsHeaders
+                });
+            }
+        }
 
         const url = new URL(request.url);
 

@@ -8,3 +8,11 @@ FRONTEND_URL = "https://5babbitt.github.io/Tournament-Arc"
 [[kv_namespaces]]
 binding = "POLLS"
 id = "4684f4ebd1ee42ebb1aee82123387540"
+
+[[ratelimits]]
+name = "MY_RATE_LIMITER"
+namespace_id = "1001"
+
+[ratelimits.simple]
+limit = 20
+period = 60

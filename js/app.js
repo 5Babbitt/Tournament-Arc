@@ -102,6 +102,7 @@ async function handleCreatePoll() {
     // 6. Call loadPollData(new_id).
 
 	const pollTitle = document.getElementById('pollTitle').value.trim();
+    const expiry = parseInt(document.getElementById('pollExpiry').value, 10);
     const candidateInputs = document.querySelectorAll('.candidateVal');
 
 	const candidates = Array.from(candidateInputs)
@@ -124,7 +125,7 @@ async function handleCreatePoll() {
 
 	try {
 		// POST to /api/create 
-		const response = await api.createPoll(pollTitle, candidates)
+		const response = await api.createPoll(pollTitle, candidates, expiry)
 		const { poll_id, admin_token } = response
 
 		localStorage.setItem(`admin_${poll_id}`, admin_token)
