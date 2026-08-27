@@ -7,8 +7,9 @@ const state = {
   candidates: [],
   // You can add more state variables here if needed
 };
-
 const MAX_CANDIDATES = 20;
+
+let sortableInstance = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   initApp();
@@ -198,7 +199,7 @@ async function loadPollData(pollId) {
 					<td>${escapeHTML(candidate)}</td>
 					<td>${score}</td>
 				`
-				tableBody.appendChild(tr)
+				tableBody.appendChild(tableRow)
 			})
 
 			showView('resultsView')
@@ -218,6 +219,30 @@ async function handleSubmitVote() {
     // 2. Extract current ranking from the DOM (e.g., looping through #sortableList children).
     // 3. POST to /api/vote.
     // 4. Show success message to the user.
+	const voterName = document.getElementById('voterName').value.trim();
+    
+    if (!voterName) {
+        alert('Please enter your name before submitting your vote.');
+        return;
+    }
+
+    // Extract current order from the DOM list elements
+    const sortableList = document.getElementById('sortableList');
+    const ranking = Array.from(sortableList.children).map(li => li.innerText.trim());
+
+    if (ranking.length === 0) {
+        alert('No candidates available to rank.');
+        return;
+    }
+
+    try {
+        await api.submitVote(state.pollId, voterName, ranking);
+        alert('Your vote has been successfully cast!');
+        document.getElementById('voterName').value = ''; // Reset name input
+    } catch (error) {
+        console.error('Failed to submit vote:', error);
+        alert(`Error submitting vote: ${error.message}`);
+    }
 }
 
 async function handleClosePoll() {
@@ -226,6 +251,39 @@ async function handleClosePoll() {
     // 2. POST to /api/close using state.pollId and state.adminToken.
     // 3. Once successful, pass the returned results to a function that renders the results table.
     // 4. showView('resultsView').
+
+	if (!window.confirm('Are you sure you want to close this poll? New votes will no longer be accepted.')) {
+        return;
+    }
+
+    try {
+        const results = await api.closePoll(state.pollId, state.adminToken);
+
+        // Populate results fields directly with returned calculation data
+        document.getElementById('winnerName').innerText = results.winner || 'Tied / No Winner';
+        document.getElementById('winningMethod').innerText = results.winning_method || 'Unknown';
+
+        const tableBody = document.getElementById('resultsTableBody');
+        tableBody.innerHTML = '';
+
+        const sortedScores = Object.entries(results.borda_scores || {})
+            .sort(([, scoreA], [, scoreB]) => scoreB - scoreA);
+
+        sortedScores.forEach(([candidate, score], index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${escapeHTML(candidate)}</td>
+                <td>${score}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        showView('resultsView');
+    } catch (error) {
+        console.error('Failed to close poll:', error);
+        alert(`Error closing poll: ${error.message}`);
+    }
 }
 
 // Sortable List
@@ -233,6 +291,17 @@ function initSortable() {
     // TODO:
     // 1. Get the #sortableList element.
     // 2. Instantiate new Sortable(element, { animation: 150, ghostClass: 'sortable-ghost' });
+
+	const sortableList = document.getElementById('sortableList');
+    
+    if (sortableInstance) {
+        sortableInstance.destroy();
+    }
+
+    sortableInstance = new Sortable(sortableList, {
+        animation: 150,
+        ghostClass: 'sortable-ghost'
+    });
 }
 
 // Helper function to safely escape HTML and prevent basic XSS
