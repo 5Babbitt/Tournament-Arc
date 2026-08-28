@@ -3,7 +3,7 @@ import { calculateBlacksMethod } from './algorithm.js';
 async function handleCreate(request, env, corsHeaders) {
     try {
         const body = await request.json();
-        const { title, candidates, expiry } = body;
+        const { title, candidates } = body;
 
         // Validation with length restrictions
         if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 100) {
@@ -27,11 +27,6 @@ async function handleCreate(request, env, corsHeaders) {
             });
         }
 
-        // Validate expiry and convert to seconds (default to 1 day if invalid)
-        const allowedExpiries = [1, 2, 3, 7];
-        const expiryDays = allowedExpiries.includes(expiry) ? expiry : 1;
-        const expirationTtlSeconds = expiryDays * 86400;
-
         const poll_id = Math.random().toString(36).substring(2, 9);
         const admin_token = crypto.randomUUID();
 
@@ -43,8 +38,7 @@ async function handleCreate(request, env, corsHeaders) {
             votes: []
         };
 
-        // Use dynamic TTL based on user selection
-        await env.POLLS.put(poll_id, JSON.stringify(pollState), { expirationTtl: expirationTtlSeconds });
+        await env.POLLS.put(poll_id, JSON.stringify(pollState));
 
         return new Response(JSON.stringify({ poll_id, admin_token }), {
             status: 200,
@@ -144,10 +138,19 @@ async function handleVote(request, env, corsHeaders) {
             });
         }
 
+        if (pollData.votes.some(v => v.voter_name.toLowerCase() === voter_name.trim().toLowerCase())) {
+            return new Response(JSON.stringify({ error: "You have already voted in this poll." }), {
+                status: 400,
+                headers: corsHeaders
+            });
+        }
+
         pollData.votes.push({ 
             voter_name: voter_name.trim(), 
             ranking 
         });
+
+        await env.POLLS.put(poll_id, JSON.stringify(pollData));
 
         return new Response(JSON.stringify({ success: true }), {
             status: 200,
@@ -239,19 +242,6 @@ export default {
             "Access-Control-Allow-Origin": env.FRONTEND_URL,
             "Content-Type": "application/json"
         };
-        
-        // Apply native rate limit bound to the client IP on POST requests
-        if (request.method === "POST") {
-            const clientIp = request.headers.get("CF-Connecting-IP") || "unknown";
-            const { success } = await env.MY_RATE_LIMITER.limit({ key: clientIp });
-            
-            if (!success) {
-                return new Response(JSON.stringify({ error: "Too many requests. Please slow down." }), {
-                    status: 429,
-                    headers: corsHeaders
-                });
-            }
-        }
 
         const url = new URL(request.url);
 
